@@ -8,9 +8,9 @@ public class GreetingController {
 
     public final String greeting = "Up and running: ";
 
-    @RequestMapping
-    public String greeting(){
-        return greeting + System.currentTimeMillis();
+    @RequestMapping("/status")
+    public long greeting(){
+        return System.currentTimeMillis();
     }
 
 }
