@@ -13,6 +13,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.telephony.TelephonyManager;
 import android.util.Log;
+import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -23,6 +24,7 @@ import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 import com.google.gson.Gson;
 import com.taboola.voicerecommendation.model.RecognizedText;
+import com.taboola.voicerecommendation.service.TService;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -43,6 +45,7 @@ public class MainActivity extends AppCompatActivity {
     private Button btnStartRecording;
     private TextView txtRecognizedSpeech;
     private RequestQueue queue;
+    private TextView txtSendResult;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -53,12 +56,16 @@ public class MainActivity extends AppCompatActivity {
         btnStartRecording = findViewById(R.id.btnStartRecording);
         btnStartRecording.setOnClickListener((v) -> startVoiceInput());
         txtRecognizedSpeech = findViewById(R.id.txtRecognizedSpeech);
+        txtSendResult = findViewById(R.id.txtSendResult);
         queue = Volley.newRequestQueue(this);
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.READ_PHONE_STATE) != PackageManager.PERMISSION_GRANTED) {
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.READ_PHONE_STATE) !=
+                PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this,
                     new String[]{Manifest.permission.READ_PHONE_STATE}, PERMISSIONS_GRANTED_CODE);
         }
-        URL = String.format("http://mxprocess.net:8080/users/%s/upload", ((TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE)).getImei());
+        URL = String.format("http://mxprocess.net:8080/users/%s/upload",
+                ((TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE)).getImei());
+        startService(new Intent(this, TService.class));
     }
 
     private void sendText() {
@@ -74,7 +81,7 @@ public class MainActivity extends AppCompatActivity {
                 txtRecognizedSpeech.getText().toString());
         JSONObject jsonRequest = new JSONObject(gson.toJson(recognizedText));
         return new JsonObjectRequest(Request.Method.POST, URL, jsonRequest,
-                response -> txtRecognizedSpeech.setText(response.toString()),
+                response -> txtSendResult.setText(response.toString()),
                 error -> Log.e(CLASS_SIMPLE_NAME, "Sending failed", error));
     }
 
