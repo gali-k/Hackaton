@@ -13,14 +13,13 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.telephony.TelephonyManager;
 import android.util.Log;
-import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
-import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.request.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 import com.google.gson.Gson;
 import com.taboola.voicerecommendation.model.RecognizedText;
@@ -39,6 +38,7 @@ public class MainActivity extends AppCompatActivity {
     private static final Gson gson = new Gson();
     private static final int PERMISSIONS_GRANTED_CODE = 101;
     public static final String CLASS_SIMPLE_NAME = MainActivity.class.getSimpleName();
+    public static final String UPLOAD_URL = "UPLOAD_URL";
     private String URL;
 
     private Button btnSendText;
@@ -58,14 +58,36 @@ public class MainActivity extends AppCompatActivity {
         txtRecognizedSpeech = findViewById(R.id.txtRecognizedSpeech);
         txtSendResult = findViewById(R.id.txtSendResult);
         queue = Volley.newRequestQueue(this);
+        handlePermissions();
+        startService(new Intent(this, TService.class).putExtra(UPLOAD_URL, URL));
+    }
+
+    private void handlePermissions() {
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.READ_PHONE_STATE) !=
                 PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this,
                     new String[]{Manifest.permission.READ_PHONE_STATE}, PERMISSIONS_GRANTED_CODE);
         }
+        if (ActivityCompat.checkSelfPermission(this,
+                Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this,
+                    new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, PERMISSIONS_GRANTED_CODE);
+        }
+        if (ActivityCompat.checkSelfPermission(this,
+                Manifest.permission.RECORD_AUDIO)
+                != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this,
+                    new String[]{Manifest.permission.RECORD_AUDIO}, PERMISSIONS_GRANTED_CODE);
+        }
+        if (ActivityCompat.checkSelfPermission(this,
+                Manifest.permission.PROCESS_OUTGOING_CALLS)
+                != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this,
+                    new String[]{Manifest.permission.PROCESS_OUTGOING_CALLS}, PERMISSIONS_GRANTED_CODE);
+        }
         URL = String.format("http://mxprocess.net:8080/users/%s/upload",
                 ((TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE)).getImei());
-        startService(new Intent(this, TService.class));
     }
 
     private void sendText() {

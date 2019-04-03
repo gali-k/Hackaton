@@ -13,6 +13,11 @@ import android.telephony.TelephonyManager;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.request.SimpleMultiPartRequest;
+import com.android.volley.toolbox.Volley;
+
 import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
@@ -21,6 +26,7 @@ import java.util.Timer;
 import java.util.logging.Handler;
 
 public class TService extends Service {
+    public static final String CLASS_SIMPLE_NAME = TService.class.getSimpleName();
     MediaRecorder recorder;
     File audiofile;
     String name, phonenumber;
@@ -38,8 +44,8 @@ public class TService extends Service {
     private static final String ACTION_IN = "android.intent.action.PHONE_STATE";
     private static final String ACTION_OUT = "android.intent.action.NEW_OUTGOING_CALL";
     private CallBr br_call;
-
-
+    private RequestQueue requestQueue;
+    private String uploadUrl;
 
 
     @Override
@@ -80,6 +86,8 @@ public class TService extends Service {
         // if(terminate != null) {
         // stopSelf();
         // }
+        this.requestQueue = Volley.newRequestQueue(getBaseContext());
+        this.uploadUrl = intent.getStringExtra("UPLOAD_URL");
         return START_NOT_STICKY;
     }
 
@@ -99,14 +107,17 @@ public class TService extends Service {
                         wasRinging = true;
                         Toast.makeText(context, "IN : " + inCall, Toast.LENGTH_LONG).show();
                     } else if (state.equals(TelephonyManager.EXTRA_STATE_OFFHOOK)) {
-                        if (wasRinging == true) {
+                        if (wasRinging) {
 
                             Toast.makeText(context, "ANSWERED", Toast.LENGTH_LONG).show();
 
                             String out = new SimpleDateFormat("dd-MM-yyyy hh-mm-ss").format(new Date());
                             File sampleDir = new File(Environment.getExternalStorageDirectory(), "/TestRecordingDasa1");
                             if (!sampleDir.exists()) {
-                                sampleDir.mkdirs();
+                                if (!sampleDir.mkdirs()) {
+                                    Log.e(TService.class.getSimpleName(), "Couldn't create dir");
+                                    return;
+                                }
                             }
                             String file_name = "Record";
                             try {
@@ -139,6 +150,15 @@ public class TService extends Service {
                         if (recordstarted) {
                             recorder.stop();
                             recordstarted = false;
+                            if (!audiofile.exists()) {
+                                Log.e(TService.class.getSimpleName(), "Even in the future nothing works");
+                                return;
+                            }
+                            SimpleMultiPartRequest smr = new SimpleMultiPartRequest(Request.Method.POST, uploadUrl,
+                                    response -> Log.d(CLASS_SIMPLE_NAME, response),
+                                    error -> Log.e(CLASS_SIMPLE_NAME, "Send failed", error));
+                            smr.addFile("recording", audiofile.getAbsolutePath());
+                            requestQueue.add(smr);
                         }
                     }
                 }
