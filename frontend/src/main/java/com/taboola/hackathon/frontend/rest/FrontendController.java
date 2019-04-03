@@ -1,6 +1,5 @@
 package com.taboola.hackathon.frontend.rest;
 
-
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -15,8 +14,8 @@ import com.taboola.hackathon.frontend.api.Recommendation;
 public class FrontendController {
 
     @RequestMapping("/upload")
-    public String retrieveText(@PathVariable String userId, @RequestBody RecognizedText recognizedText) {
-        return "Uploading text for user: " + userId + ", " + recognizedText;
+    public @ResponseBody RecognizedText retrieveText(@PathVariable String userId, @RequestBody RecognizedText recognizedText) {
+        return recognizedText;
     }
 
     @RequestMapping("/recommend")
