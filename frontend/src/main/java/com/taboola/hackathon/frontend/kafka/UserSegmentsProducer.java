@@ -6,22 +6,21 @@ import org.apache.kafka.clients.producer.KafkaProducer;
 import org.apache.kafka.clients.producer.Producer;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.clients.producer.ProducerRecord;
-import org.apache.kafka.common.serialization.ByteArraySerializer;
-import org.apache.kafka.common.serialization.LongSerializer;
 import org.apache.kafka.common.serialization.StringSerializer;
 
 public class UserSegmentsProducer {
     public static String KAFKA_BROKERS = "kafka005.taboolasyndication.com:6667";
-    public static Integer MESSAGE_COUNT=1000;
-    public static String CLIENT_ID="client1";
+    public static String CLIENT_ID="hackaton";
     public static String USER_SEGMENTS_KAFKA_TOPIC="user_segments";
-    public static String GROUP_ID_CONFIG="consumerGroup1";
-    public static Integer MAX_NO_MESSAGE_FOUND_COUNT=100;
-    public static String OFFSET_RESET_LATEST="latest";
-    public static String OFFSET_RESET_EARLIER="earliest";
-    public static Integer MAX_POLL_RECORDS=1;
 
-    public static Producer<String, UserSegmentsData> createProducer() {
+    private static Producer producer;
+
+
+    public UserSegmentsProducer(){
+        producer = createProducer();
+    }
+
+    private Producer<String, UserSegmentsData> createProducer() {
         Properties props = new Properties();
         props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, KAFKA_BROKERS);
         props.put(ProducerConfig.CLIENT_ID_CONFIG, CLIENT_ID);
@@ -29,6 +28,7 @@ public class UserSegmentsProducer {
         props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, UserSegmentsSerializer.class.getName());
         return new KafkaProducer<>(props);
     }
+
 
     public static String getHashedUserId(String userId) {
         if (userId == null || userId.isEmpty()) {
@@ -41,9 +41,7 @@ public class UserSegmentsProducer {
         }
     }
 
-    public static void main(String[] args) {
-        Producer producer = UserSegmentsProducer.createProducer();
-        String deviceId = "12345667";//some device ID
+    public void sendToKafka(String deviceId){
         String hashedUserId = getHashedUserId(deviceId);
         UserSegmentsData data = new UserSegmentsData();
         data.setTaboolaUserId(deviceId);
@@ -53,6 +51,12 @@ public class UserSegmentsProducer {
         data.setUddIdsList(ids_list);
         data.setDeletedUddIdsList(null);
         producer.send(new ProducerRecord<>(USER_SEGMENTS_KAFKA_TOPIC, hashedUserId, data));
+    }
+
+    public static void main(String[] args) {
+        UserSegmentsProducer userSegmentsProducer = new UserSegmentsProducer();
+        String deviceId = "12345667";//some device ID
+        userSegmentsProducer.sendToKafka(deviceId);
         System.out.println("message sent");
     }
 
