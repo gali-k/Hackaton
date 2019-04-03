@@ -14,9 +14,9 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 
-public class SpeechToTextConverter {
+public class GoogleCloudAPI {
     private SpeechClient speechClient;
-    public SpeechToTextConverter(){
+    public GoogleCloudAPI(){
       try {
         this.speechClient = SpeechClient.create();
       } catch (IOException e) {
@@ -33,7 +33,7 @@ public class SpeechToTextConverter {
       // Builds the sync recognize request
       RecognitionConfig config = RecognitionConfig.newBuilder()
               .setEncoding(AudioEncoding.LINEAR16)
-              .setSampleRateHertz(16000)
+              .setSampleRateHertz(48000)
               .setLanguageCode("en-US")
               .build();
       RecognitionAudio audio = RecognitionAudio.newBuilder()
@@ -47,13 +47,14 @@ public class SpeechToTextConverter {
     }
 
   public static void main(String... args) throws Exception {
-    SpeechToTextConverter speechToTextConverter = new SpeechToTextConverter();
-    List<SpeechRecognitionResult> speechRecognitionResults = speechToTextConverter.speechToText("./resources/audio.raw");
-    for (SpeechRecognitionResult result : speechRecognitionResults) {
-      // There can be several alternative transcripts for a given chunk of speech. Just use the
-      // first (most likely) one here.
-      SpeechRecognitionAlternative alternative = result.getAlternativesList().get(0);
-      System.out.printf("Transcription: %s%n", alternative.getTranscript());
-    }
+//      System.setProperty("GOOGLE_APPLICATION_CREDENTIALS","/Users/gali.k/Downloads/taboola-data-kafka-a5eed47f8a3e.json");
+      GoogleCloudAPI speechToTextConverter = new GoogleCloudAPI();
+      List<SpeechRecognitionResult> speechRecognitionResults = speechToTextConverter.speechToText("/Users/gali.k/IdeaProjects/2019/Hackaton/frontend/src/main/resources/test2_mono.wav");
+      for (SpeechRecognitionResult result : speechRecognitionResults) {
+        // There can be several alternative transcripts for a given chunk of speech. Just use the
+        // first (most likely) one here.
+        SpeechRecognitionAlternative alternative = result.getAlternativesList().get(0);
+        System.out.printf("Transcription: %s%n", alternative.getTranscript());
+      }
   }
 }

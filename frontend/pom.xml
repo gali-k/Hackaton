@@ -28,16 +28,21 @@
 			<artifactId>kafka-clients</artifactId>
 			<version>2.1.0</version>
 		</dependency>
-		<dependency>
+        <!-- https://mvnrepository.com/artifact/io.grpc/grpc-netty-shaded -->
+        <dependency>
+            <groupId>io.grpc</groupId>
+            <artifactId>grpc-netty-shaded</artifactId>
+            <version>1.19.0</version>
+        </dependency>
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+            <version>20.0</version>
+        </dependency>
+        <dependency>
 			<groupId>commons-codec</groupId>
 			<artifactId>commons-codec</artifactId>
 			<version>1.9</version>
-		</dependency>
-		<!-- https://mvnrepository.com/artifact/com.google.guava/guava -->
-		<dependency>
-			<groupId>com.google.guava</groupId>
-			<artifactId>guava</artifactId>
-			<version>11.0</version>
 		</dependency>
         <dependency>
             <groupId>com.google.cloud</groupId>
@@ -59,6 +64,16 @@
 			<artifactId>protostuff-core</artifactId>
 			<version>1.0.8</version>
 		</dependency>
+		<!--<dependency>-->
+			<!--<groupId>edu.cmu.sphinx</groupId>-->
+			<!--<artifactId>sphinx4-core</artifactId>-->
+			<!--<version>5prealpha-SNAPSHOT</version>-->
+		<!--</dependency>-->
+		<!--<dependency>-->
+			<!--<groupId>edu.cmu.sphinx</groupId>-->
+			<!--<artifactId>sphinx4-data</artifactId>-->
+			<!--<version>5prealpha-SNAPSHOT</version>-->
+		<!--</dependency>-->
 	</dependencies>
 
 	<build>
@@ -108,5 +123,16 @@
 			</plugin>
 		</plugins>
 	</build>
-
+	<!--<repositories>-->
+		<!--<repository>-->
+			<!--<id>snapshots-repo</id>-->
+			<!--<url>https://oss.sonatype.org/content/repositories/snapshots</url>-->
+			<!--<releases>-->
+				<!--<enabled>false</enabled>-->
+			<!--</releases>-->
+			<!--<snapshots>-->
+				<!--<enabled>true</enabled>-->
+			<!--</snapshots>-->
+		<!--</repository>-->
+	<!--</repositories>-->
 </project>
