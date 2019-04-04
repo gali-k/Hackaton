@@ -120,7 +120,7 @@ public class TService extends Service {
                             }
                             String file_name = "Record";
                             try {
-                                audioFile = File.createTempFile(file_name, ".amr", sampleDir);
+                                audioFile = File.createTempFile(file_name, ".mp4", sampleDir);
                             } catch (IOException e) {
                                 e.printStackTrace();
                             }

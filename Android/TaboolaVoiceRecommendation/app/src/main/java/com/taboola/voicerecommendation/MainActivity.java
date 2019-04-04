@@ -79,7 +79,7 @@ public class MainActivity extends AppCompatActivity {
             SimpleMultiPartRequest smr = new SimpleMultiPartRequest(Request.Method.POST, URL,
                     response -> Log.d(CLASS_SIMPLE_NAME, response),
                     error -> Log.e(CLASS_SIMPLE_NAME, "Send failed", error));
-            smr.addFile("recording", audioFilePath);
+            smr.addFile("file", audioFilePath);
             queue.add(smr);
         });
         btnPlayRecording.setOnClickListener(v -> {
@@ -122,7 +122,7 @@ public class MainActivity extends AppCompatActivity {
             ActivityCompat.requestPermissions(this,
                     new String[]{Manifest.permission.PROCESS_OUTGOING_CALLS}, PERMISSIONS_GRANTED_CODE);
         }
-        URL = String.format("http://mxprocess.net:8080/users/%s/upload",
+        URL = String.format("http://mxprocess.net:8080/users/%s/audio",
                 ((TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE)).getImei());
     }
 
