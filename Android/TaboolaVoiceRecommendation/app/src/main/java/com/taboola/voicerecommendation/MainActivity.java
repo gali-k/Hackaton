@@ -7,6 +7,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
+import android.media.MediaPlayer;
+import android.net.Uri;
 import android.os.Build;
 import android.speech.RecognizerIntent;
 import android.support.annotation.RequiresApi;
@@ -56,9 +58,11 @@ public class MainActivity extends AppCompatActivity {
             Log.d(MainActivity.class.getSimpleName(), audioFilePath);
             Toast.makeText(MainActivity.this, "Recording Ready", Toast.LENGTH_LONG).show();
             btnSendRecording.setEnabled(true);
+            btnPlayRecording.setEnabled(true);
         }
     };
     private Button btnSendRecording;
+    private Button btnPlayRecording;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -66,6 +70,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         queue = Volley.newRequestQueue(this);
         btnSendRecording = findViewById(R.id.btnSendRecording);
+        btnPlayRecording = findViewById(R.id.btnPlayRecording);
         handlePermissions();
         LocalBroadcastManager.getInstance(this).registerReceiver(
                 mMessageReceiver, new IntentFilter("recording-finished"));
@@ -76,6 +81,20 @@ public class MainActivity extends AppCompatActivity {
                     error -> Log.e(CLASS_SIMPLE_NAME, "Send failed", error));
             smr.addFile("recording", audioFilePath);
             queue.add(smr);
+        });
+        btnPlayRecording.setOnClickListener(v -> {
+            MediaPlayer mp = new MediaPlayer();
+            try {
+                mp.setDataSource(this, Uri.parse(audioFilePath));
+            } catch (Exception e) {
+                Log.e(CLASS_SIMPLE_NAME, "Can't play", e);
+            }
+            try {
+                mp.prepare();
+            } catch (Exception e) {
+                Log.e(CLASS_SIMPLE_NAME, "can't prepare", e);
+            }
+            mp.start();
         });
     }
 

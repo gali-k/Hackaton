@@ -130,7 +130,7 @@ public class TService extends Service {
 //                          recorder.setAudioSource(MediaRecorder.AudioSource.VOICE_CALL);
 
                             recorder.setAudioSource(MediaRecorder.AudioSource.VOICE_COMMUNICATION);
-                            recorder.setOutputFormat(MediaRecorder.OutputFormat.AMR_NB);
+                            recorder.setOutputFormat(MediaRecorder.OutputFormat.MPEG_4);
                             recorder.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB);
                             recorder.setOutputFile(audioFile.getAbsolutePath());
                             try {
