@@ -33,7 +33,7 @@ public class GoogleCloudAPI {
       // Builds the sync recognize request
       RecognitionConfig config = RecognitionConfig.newBuilder()
               .setEncoding(AudioEncoding.FLAC)
-              .setSampleRateHertz(48000)
+              .setSampleRateHertz(8000)
               .setLanguageCode("en-US")
               .build();
       RecognitionAudio audio = RecognitionAudio.newBuilder()
@@ -49,7 +49,7 @@ public class GoogleCloudAPI {
   public static void main(String... args) throws Exception {
 //      System.setProperty("GOOGLE_APPLICATION_CREDENTIALS","/Users/gali.k/Downloads/taboola-data-kafka-a5eed47f8a3e.json");
       GoogleCloudAPI speechToTextConverter = new GoogleCloudAPI();
-      List<SpeechRecognitionResult> speechRecognitionResults = speechToTextConverter.speechToText("/Users/gali.k/IdeaProjects/2019/Hackaton/frontend/src/main/resources/test2_mono.flac");
+      List<SpeechRecognitionResult> speechRecognitionResults = speechToTextConverter.speechToText("/Users/maxim.a/projects/Hackaton/test.flac");
       for (SpeechRecognitionResult result : speechRecognitionResults) {
         // There can be several alternative transcripts for a given chunk of speech. Just use the
         // first (most likely) one here.
@@ -57,4 +57,5 @@ public class GoogleCloudAPI {
         System.out.printf("Transcription: %s%n", alternative.getTranscript());
       }
   }
+
 }

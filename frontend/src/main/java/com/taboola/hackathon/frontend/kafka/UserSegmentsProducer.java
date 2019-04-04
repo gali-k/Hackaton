@@ -51,13 +51,13 @@ public class UserSegmentsProducer {
         data.setUddIdsList(ids_list);
         data.setDeletedUddIdsList(null);
         producer.send(new ProducerRecord<>(USER_SEGMENTS_KAFKA_TOPIC, hashedUserId, data));
+        System.out.println("message sent");
     }
 
     public static void main(String[] args) {
         UserSegmentsProducer userSegmentsProducer = new UserSegmentsProducer();
         String deviceId = "12345667";//some device ID
         userSegmentsProducer.sendToKafka(deviceId);
-        System.out.println("message sent");
     }
 
 
