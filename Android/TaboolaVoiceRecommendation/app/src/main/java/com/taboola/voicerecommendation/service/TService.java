@@ -9,6 +9,7 @@ import android.media.MediaRecorder;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.IBinder;
+import android.support.v4.content.LocalBroadcastManager;
 import android.telephony.TelephonyManager;
 import android.util.Log;
 import android.widget.Toast;
@@ -28,7 +29,7 @@ import java.util.logging.Handler;
 public class TService extends Service {
     public static final String CLASS_SIMPLE_NAME = TService.class.getSimpleName();
     MediaRecorder recorder;
-    File audiofile;
+    File audioFile;
     String name, phonenumber;
     String audio_format;
     public String Audio_Type;
@@ -45,7 +46,6 @@ public class TService extends Service {
     private static final String ACTION_OUT = "android.intent.action.NEW_OUTGOING_CALL";
     private CallBr br_call;
     private RequestQueue requestQueue;
-    private String uploadUrl;
 
 
     @Override
@@ -87,7 +87,6 @@ public class TService extends Service {
         // stopSelf();
         // }
         this.requestQueue = Volley.newRequestQueue(getBaseContext());
-        this.uploadUrl = intent.getStringExtra("UPLOAD_URL");
         return START_NOT_STICKY;
     }
 
@@ -121,7 +120,7 @@ public class TService extends Service {
                             }
                             String file_name = "Record";
                             try {
-                                audiofile = File.createTempFile(file_name, ".amr", sampleDir);
+                                audioFile = File.createTempFile(file_name, ".amr", sampleDir);
                             } catch (IOException e) {
                                 e.printStackTrace();
                             }
@@ -133,7 +132,7 @@ public class TService extends Service {
                             recorder.setAudioSource(MediaRecorder.AudioSource.VOICE_COMMUNICATION);
                             recorder.setOutputFormat(MediaRecorder.OutputFormat.AMR_NB);
                             recorder.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB);
-                            recorder.setOutputFile(audiofile.getAbsolutePath());
+                            recorder.setOutputFile(audioFile.getAbsolutePath());
                             try {
                                 recorder.prepare();
                             } catch (IllegalStateException e) {
@@ -150,16 +149,14 @@ public class TService extends Service {
                         if (recordstarted) {
                             recorder.stop();
                             recordstarted = false;
-                            if (!audiofile.exists()) {
+                            if (!audioFile.exists()) {
                                 Log.e(TService.class.getSimpleName(), "Even in the future nothing works");
                                 return;
                             }
-                            SimpleMultiPartRequest smr = new SimpleMultiPartRequest(Request.Method.POST, uploadUrl,
-                                    response -> Log.d(CLASS_SIMPLE_NAME, response),
-                                    error -> Log.e(CLASS_SIMPLE_NAME, "Send failed", error));
-                            smr.addFile("recording", audiofile.getAbsolutePath());
-                            requestQueue.add(smr);
                         }
+                        Intent broadcastIntent = new Intent("recording-finished");
+                        broadcastIntent.putExtra("audioFile", audioFile.getAbsolutePath());
+                        LocalBroadcastManager.getInstance(TService.this).sendBroadcast(broadcastIntent);
                     }
                 }
             } else if (intent.getAction().equals(ACTION_OUT)) {
