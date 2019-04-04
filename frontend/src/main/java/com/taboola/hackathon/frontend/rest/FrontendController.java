@@ -6,6 +6,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.taboola.hackathon.frontend.api.RecognizedRecording;
 import com.taboola.hackathon.frontend.api.RecognizedText;
 import com.taboola.hackathon.frontend.api.Recommendation;
 
@@ -16,6 +17,11 @@ public class FrontendController {
     @RequestMapping("/upload")
     public @ResponseBody RecognizedText retrieveText(@PathVariable String userId, @RequestBody RecognizedText recognizedText) {
         return recognizedText;
+    }
+
+    @RequestMapping("/uploadRecording")
+    public @ResponseBody RecognizedRecording retrieveRecording(@PathVariable String userId, @RequestBody RecognizedRecording recognizedRecording) {
+        return recognizedRecording;
     }
 
     @RequestMapping("/recommend")
